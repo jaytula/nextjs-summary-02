@@ -1,10 +1,18 @@
-import MeetupItem from './MeetupItem';
-import classes from './MeetupList.module.css';
+import MeetupItem from "./MeetupItem";
+import classes from "./MeetupList.module.css";
 
-function MeetupList(props) {
+export interface IMeetup {
+  id: string;
+  image: string;
+  title: string;
+  address: string;
+  description: string;
+}
+
+function MeetupList({ meetups }: { meetups: IMeetup[] }) {
   return (
     <ul className={classes.list}>
-      {props.meetups.map((meetup) => (
+      {meetups.map((meetup) => (
         <MeetupItem
           key={meetup.id}
           id={meetup.id}
