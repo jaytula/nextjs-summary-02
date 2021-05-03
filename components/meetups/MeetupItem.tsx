@@ -2,14 +2,15 @@ import Card from "../ui/Card";
 import { useRouter } from "next/router";
 import classes from "./MeetupItem.module.css";
 import { MouseEventHandler } from "react";
+import { IMeetup } from "./MeetupList";
 
-function MeetupItem(props) {
+function MeetupItem(props: IMeetup) {
   const router = useRouter();
 
-  const showDetailsHandler: MouseEventHandler<HTMLButtonElement> = event => {
+  const showDetailsHandler: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
     router.push(`/${props.id}`);
-  }
+  };
   return (
     <li className={classes.item}>
       <Card>
