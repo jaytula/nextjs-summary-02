@@ -1,15 +1,36 @@
+import { GetStaticPaths, GetStaticProps } from "next";
+import { DUMMY_MEETUPS } from "..";
 import MeetupDetail from "../../components/meetups/MeetupDetail";
+import { IMeetup } from "../../components/meetups/MeetupList";
 
-function MeetupDetails() {
+function MeetupDetails({ meetupData }: { meetupData: IMeetup }) {
   return (
     <MeetupDetail
-      id="m1"
-      title="A First Meetup"
-      address="Some Street 5, Some City"
-      description="The meetup description"
-      image="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Frauenkirche_and_Neues_Rathaus_Munich_March_2013.JPG/1280px-Frauenkirche_and_Neues_Rathaus_Munich_March_2013.JPG"
+      id={meetupData.id}
+      title={meetupData.title}
+      address={meetupData.address}
+      description={meetupData.description}
+      image={meetupData.image}
     />
   );
 }
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const meetupData = DUMMY_MEETUPS.find(
+    (meetup) => meetup.id === context.params.meetupId
+  );
+  return {
+    props: {
+      meetupData: meetupData,
+    },
+  };
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: DUMMY_MEETUPS.map((meetup) => ({ params: { meetupId: meetup.id } })),
+    fallback: false,
+  };
+};
 
 export default MeetupDetails;
