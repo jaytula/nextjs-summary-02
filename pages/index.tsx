@@ -1,7 +1,7 @@
 import { GetStaticProps } from "next";
 import MeetupList, { IMeetup } from "../components/meetups/MeetupList";
 
-const DUMMY_MEETUPS: IMeetup[] = [
+export const DUMMY_MEETUPS: IMeetup[] = [
   {
     id: "m1",
     title: "A First Meetup",
@@ -29,6 +29,8 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       meetups: DUMMY_MEETUPS,
     },
+    // Page is regenerated every 10 seconds with revalidate
+    revalidate: 10
   };
 };
 
