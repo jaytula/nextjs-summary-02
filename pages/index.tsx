@@ -1,4 +1,4 @@
-import { GetStaticProps } from "next";
+import { GetServerSideProps, GetStaticProps } from "next";
 import MeetupList, { IMeetup } from "../components/meetups/MeetupList";
 
 export const DUMMY_MEETUPS: IMeetup[] = [
@@ -33,5 +33,16 @@ export const getStaticProps: GetStaticProps = async () => {
     revalidate: 10
   };
 };
+
+// export const getServerSideProps: GetServerSideProps = async (context) => {
+//   const req = context.req;
+//   const res = context.res;
+
+//   return {
+//     props: {
+//       meetups: DUMMY_MEETUPS
+//     }
+//   }
+// }
 
 export default HomePage;
