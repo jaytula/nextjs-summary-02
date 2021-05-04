@@ -1,4 +1,6 @@
+import { MongoClient } from "mongodb";
 import { GetServerSideProps, GetStaticProps } from "next";
+import MeetupItem from "../components/meetups/MeetupItem";
 import MeetupList, { IMeetup } from "../components/meetups/MeetupList";
 
 export const DUMMY_MEETUPS: IMeetup[] = [
@@ -25,9 +27,23 @@ const HomePage = ({ meetups }: { meetups: IMeetup[] }) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
+  const client = await MongoClient.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true});
+  const db = client.db();
+  const meetupsCollection = db.collection('meetups');
+
+  const meetups = await meetupsCollection.find().toArray()
+  const adjustedMeetups = meetups.map(item => {
+    const adjustedItem = {...item};
+    adjustedItem.id = item._id.toString();
+    delete adjustedItem._id;
+    return adjustedItem;
+  })
+
+  client.close();
+
   return {
     props: {
-      meetups: DUMMY_MEETUPS,
+      meetups: adjustedMeetups,
     },
     // Page is regenerated every 10 seconds with revalidate
     revalidate: 10
