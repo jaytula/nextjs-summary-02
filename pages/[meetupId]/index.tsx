@@ -1,7 +1,15 @@
+import { MongoClient, ObjectId } from "mongodb";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { DUMMY_MEETUPS } from "..";
 import MeetupDetail from "../../components/meetups/MeetupDetail";
 import { IMeetup } from "../../components/meetups/MeetupList";
+
+const getDatabaseConnection = async () => {
+  return MongoClient.connect(process.env.MONGO_URI as string, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+  });
+};
 
 function MeetupDetails({ meetupData }: { meetupData: IMeetup }) {
   return (
@@ -16,9 +24,16 @@ function MeetupDetails({ meetupData }: { meetupData: IMeetup }) {
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const meetupData = DUMMY_MEETUPS.find(
-    (meetup) => meetup.id === context.params.meetupId
-  );
+  const client = await getDatabaseConnection();
+  const meetupsCollection = client.db().collection("meetups");
+
+  const meetup = await meetupsCollection.findOne({
+    _id: new ObjectId(context.params.meetupId as string),
+  });
+  const meetupData = { ...meetup };
+  meetupData.id = meetupData._id.toString();
+  delete meetupData._id;
+
   return {
     props: {
       meetupData: meetupData,
@@ -27,8 +42,20 @@ export const getStaticProps: GetStaticProps = async (context) => {
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const client = await getDatabaseConnection();
+  const meetupsCollection = client
+    .db()
+    .collection("meetups");
+
+  const meetups = await meetupsCollection
+    .find({})
+    .project({ _id: 1 })
+    .toArray();
+  const meetupIds = meetups.map((meetup) => meetup._id.toString());
+  client.close();
+
   return {
-    paths: DUMMY_MEETUPS.map((meetup) => ({ params: { meetupId: meetup.id } })),
+    paths: meetupIds.map((meetupId) => ({ params: { meetupId } })),
     fallback: false,
   };
 };
