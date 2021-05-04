@@ -1,7 +1,9 @@
 import { MongoClient } from "mongodb";
+import Head from "next/head";
 import { GetServerSideProps, GetStaticProps } from "next";
 import MeetupItem from "../components/meetups/MeetupItem";
 import MeetupList, { IMeetup } from "../components/meetups/MeetupList";
+import { Fragment } from "react";
 
 export const DUMMY_MEETUPS: IMeetup[] = [
   {
@@ -23,21 +25,35 @@ export const DUMMY_MEETUPS: IMeetup[] = [
 ];
 
 const HomePage = ({ meetups }: { meetups: IMeetup[] }) => {
-  return <MeetupList meetups={meetups} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>React Meetups</title>
+        <meta
+          name="description"
+          content="Browse a huge list of highly active React meetups"
+        />
+      </Head>
+      <MeetupList meetups={meetups} />
+    </Fragment>
+  );
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const client = await MongoClient.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true});
+  const client = await MongoClient.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
   const db = client.db();
-  const meetupsCollection = db.collection('meetups');
+  const meetupsCollection = db.collection("meetups");
 
-  const meetups = await meetupsCollection.find().toArray()
-  const adjustedMeetups = meetups.map(item => {
-    const adjustedItem = {...item};
+  const meetups = await meetupsCollection.find().toArray();
+  const adjustedMeetups = meetups.map((item) => {
+    const adjustedItem = { ...item };
     adjustedItem.id = item._id.toString();
     delete adjustedItem._id;
     return adjustedItem;
-  })
+  });
 
   client.close();
 
@@ -46,7 +62,7 @@ export const getStaticProps: GetStaticProps = async () => {
       meetups: adjustedMeetups,
     },
     // Page is regenerated every 10 seconds with revalidate
-    revalidate: 10
+    revalidate: 10,
   };
 };
 

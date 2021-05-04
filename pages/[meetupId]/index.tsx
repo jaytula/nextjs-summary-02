@@ -1,5 +1,7 @@
 import { MongoClient, ObjectId } from "mongodb";
 import { GetStaticPaths, GetStaticProps } from "next";
+import Head from "next/head";
+import { Fragment } from "react";
 import { DUMMY_MEETUPS } from "..";
 import MeetupDetail from "../../components/meetups/MeetupDetail";
 import { IMeetup } from "../../components/meetups/MeetupList";
@@ -13,13 +15,19 @@ const getDatabaseConnection = async () => {
 
 function MeetupDetails({ meetupData }: { meetupData: IMeetup }) {
   return (
-    <MeetupDetail
-      id={meetupData.id}
-      title={meetupData.title}
-      address={meetupData.address}
-      description={meetupData.description}
-      image={meetupData.image}
-    />
+    <Fragment>
+      <Head>
+        <title>{meetupData.title}</title>
+        <meta name="description" content={meetupData.description} />
+      </Head>
+      <MeetupDetail
+        id={meetupData.id}
+        title={meetupData.title}
+        address={meetupData.address}
+        description={meetupData.description}
+        image={meetupData.image}
+      />
+    </Fragment>
   );
 }
 
@@ -43,9 +51,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const client = await getDatabaseConnection();
-  const meetupsCollection = client
-    .db()
-    .collection("meetups");
+  const meetupsCollection = client.db().collection("meetups");
 
   const meetups = await meetupsCollection
     .find({})
